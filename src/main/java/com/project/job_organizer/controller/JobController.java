@@ -1,4 +1,4 @@
-package com.project.job_organizer;
+package com.project.job_organizer.controller;
 
 import com.project.job_organizer.model.Job;
 import com.project.job_organizer.service.JobService;
