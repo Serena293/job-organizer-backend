@@ -27,4 +27,5 @@ public class Job {
     private String pros;
     private  String cons;
 
+    private String url;
 }

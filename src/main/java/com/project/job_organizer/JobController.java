@@ -40,4 +40,9 @@ public class JobController {
     public void deleteJob(@PathVariable Integer id) {
         jobService.deleteJob(id);
     }
+
+    @PatchMapping("/{id}")
+    public Job updateJob(@PathVariable Integer id, @RequestBody Job job) {
+        return jobService.updateJob(id, job);
+    }
 }
