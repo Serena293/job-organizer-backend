@@ -10,7 +10,7 @@ import lombok.Data;
 public class Job {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     @NotNull
     private String title;
     @NotNull
@@ -28,4 +28,9 @@ public class Job {
     private  String cons;
 
     private String url;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+
 }
+

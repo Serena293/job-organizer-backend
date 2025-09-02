@@ -1,14 +1,12 @@
 package com.project.job_organizer.service;
 
+import com.project.job_organizer.controller.UserPrincipal;
 import com.project.job_organizer.model.UserEntity;
 import com.project.job_organizer.repository.UserRepository;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -21,13 +19,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        System.out.println("Searching for user with email: " + email); // DEBUG
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                List.of(new SimpleGrantedAuthority(user.getRole().name()))
-        );
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    System.out.println("User not found with email: " + email); // DEBUG
+                    return new UsernameNotFoundException("User not found with email: " + email);
+                });
+
+        System.out.println("User found: " + user.getEmail()); // DEBUG
+
+        return UserPrincipal.create(user);
     }
 }

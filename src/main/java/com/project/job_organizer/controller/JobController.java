@@ -1,7 +1,10 @@
 package com.project.job_organizer.controller;
 
 import com.project.job_organizer.model.Job;
+
 import com.project.job_organizer.service.JobService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,33 +19,57 @@ public class JobController {
         this.jobService = jobService;
     }
 
-    @GetMapping("/all")
-    public List<Job> getAllJobs() {
-        return jobService.getAllJobs();
+    @GetMapping
+    public ResponseEntity<List<Job>> getUserJobs(Authentication authentication) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Long userId = userPrincipal.getId();
+
+        List<Job> userJobs = jobService.getJobsByUserId(userId);
+        return ResponseEntity.ok(userJobs);
     }
 
     @GetMapping("/{id}")
-    public Job getJobById(@PathVariable Integer id) {
-        return jobService.getJobById(id);
+    public ResponseEntity<Job> getJobById(@PathVariable Long id, Authentication authentication) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Long userId = userPrincipal.getId();
+
+        Job job = jobService.getJobByIdAndUserId(id, userId);
+        return ResponseEntity.ok(job);
     }
 
     @GetMapping("/filter/{keyword}")
-    public List<Job> getJobsByTitle(@PathVariable String keyword) {
-        return jobService.getJobsByTitle(keyword);
+    public ResponseEntity<List<Job>> getJobsByTitle(@PathVariable String keyword, Authentication authentication) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Long userId = userPrincipal.getId();
+
+        List<Job> jobs = jobService.getJobsByTitleAndUserId(keyword, userId);
+        return ResponseEntity.ok(jobs);
     }
 
     @PostMapping
-    public Job createJob(@RequestBody Job job) {
-        return jobService.createJob(job);
+    public ResponseEntity<Job> createJob(@RequestBody Job job, Authentication authentication) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        job.setUserId(userPrincipal.getId());
+
+        Job createdJob = jobService.createJob(job);
+        return ResponseEntity.ok(createdJob);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteJob(@PathVariable Integer id) {
-        jobService.deleteJob(id);
+    public ResponseEntity<Void> deleteJob(@PathVariable Long id, Authentication authentication) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Long userId = userPrincipal.getId();
+
+        jobService.deleteJobByIdAndUserId(id, userId);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
-    public Job updateJob(@PathVariable Integer id, @RequestBody Job job) {
-        return jobService.updateJob(id, job);
+    public ResponseEntity<Job> updateJob(@PathVariable Long id, @RequestBody Job job, Authentication authentication) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Long userId = userPrincipal.getId();
+
+        Job updatedJob = jobService.updateJob(id, job, userId);
+        return ResponseEntity.ok(updatedJob);
     }
 }
