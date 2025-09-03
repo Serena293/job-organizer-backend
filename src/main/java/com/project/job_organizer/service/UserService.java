@@ -47,4 +47,24 @@ public class UserService {
         }
         return user;
     }
+
+    public UserEntity getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+
+    public UserDTO getUserDtoById(Long id) {
+        UserEntity user = getUserById(id);
+
+        UserDTO dto = new UserDTO();
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
+        dto.setEmail(user.getEmail());
+        dto.setUsername(user.getUsername());
+
+        return dto;
+    }
+
+
 }
