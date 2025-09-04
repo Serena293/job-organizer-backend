@@ -1,9 +1,6 @@
 package com.project.job_organizer.controller;
 
-import com.project.job_organizer.model.LoginDTO;
-import com.project.job_organizer.model.UserDTO;
-import com.project.job_organizer.model.UserEntity;
-import com.project.job_organizer.model.UserResponseDTO;
+import com.project.job_organizer.model.*;
 import com.project.job_organizer.security.JwtUtil;
 import com.project.job_organizer.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +32,7 @@ public class AuthController {
         response.setEmail(user.getEmail());
         response.setRole(user.getRole().name());
         response.setToken(token);
+        userService.sendWelcomeEmail(user.getEmail(), user.getFirstName());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -53,5 +51,28 @@ public class AuthController {
         response.setToken(token);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordDTO forgotPasswordDTO) {
+        try {
+            userService.sendResetPasswordEmail(forgotPasswordDTO.getEmail());
+            return ResponseEntity.ok("Password reset email sent to " + forgotPasswordDTO.getEmail());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error while sending reset email: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) {
+        try {
+            userService.resetPassword(resetPasswordDTO.getToken(),
+                    resetPasswordDTO.getNewPassword(),
+                    resetPasswordDTO.getConfirmPassword());
+            return ResponseEntity.ok("Password successfully updated");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 }

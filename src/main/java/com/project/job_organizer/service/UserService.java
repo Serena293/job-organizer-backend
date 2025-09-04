@@ -4,6 +4,8 @@ import com.project.job_organizer.model.Role;
 import com.project.job_organizer.model.UserDTO;
 import com.project.job_organizer.model.UserEntity;
 import com.project.job_organizer.repository.UserRepository;
+import com.project.job_organizer.security.JwtUtil;
+import jakarta.mail.MessagingException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +14,14 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+    private final JwtUtil jwtUtil;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailService emailService, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
+        this.jwtUtil = jwtUtil;
     }
   public UserEntity registerUser(UserDTO userDTO){
         if(userRepository.existsByUsername(userDTO.getUsername())){
@@ -64,6 +70,54 @@ public class UserService {
         dto.setUsername(user.getUsername());
 
         return dto;
+    }
+
+    //email service
+
+    public void sendWelcomeEmail(String userEmail, String firstName) {
+        String subject = "Welcome to Job Organizer!";
+        String body = "<h1>Hi " + firstName + "!</h1><p>You have successfully registered!.</p>";
+        try {
+            emailService.sendEmail(userEmail, subject, body);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            System.out.println("Email not sent");
+        }
+
+}
+
+    public void sendResetPasswordEmail(String userEmail) {
+        String token = jwtUtil.generateResetPasswordToken(userEmail);
+
+        String subject = "Password Reset Request";
+        String resetUrl = "http://localhost:5173/reset-password?token=" + token;
+
+        String body = "<p>Clicca sul link per resettare la password (valido 15 minuti):</p>"
+                + "<a href=\"" + resetUrl + "\">Reset Password</a>";
+
+        try {
+            emailService.sendEmail(userEmail, subject, body);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            System.out.println("Reset password email not sent");
+        }
+    }
+
+
+    public void resetPassword(String token, String newPassword, String confirmPassword) {
+        if (!newPassword.equals(confirmPassword)) {
+            throw new RuntimeException("Passwords do not match");
+        }
+        String email;
+        try {
+            email = jwtUtil.extractUsername(token);
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid or expired token");
+        }
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
 
