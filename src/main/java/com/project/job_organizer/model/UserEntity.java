@@ -1,5 +1,6 @@
 package com.project.job_organizer.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -36,6 +37,11 @@ public class UserEntity {
 
     private Role role;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    @JsonIgnore
+    private List<DocumentEntity> documents;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private List<NotesEntity> notes;
 
 }

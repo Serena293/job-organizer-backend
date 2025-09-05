@@ -9,6 +9,8 @@ import jakarta.mail.MessagingException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+
 @Service
 public class UserService {
 
@@ -42,6 +44,8 @@ public class UserService {
       user.setEmail(userDTO.getEmail());
       user.setRole(Role.ROLE_USER);
       user.setUsername(userDTO.getUsername());
+      user.setDocuments(new ArrayList<>());
+      user.setNotes(new ArrayList<>());
       return  userRepository.save(user);
     }
 
