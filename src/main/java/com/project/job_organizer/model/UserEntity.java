@@ -42,6 +42,7 @@ public class UserEntity {
     private List<DocumentEntity> documents;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    @JsonIgnore
     private List<NotesEntity> notes;
 
 }

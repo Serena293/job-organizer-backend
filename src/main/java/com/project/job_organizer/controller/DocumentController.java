@@ -17,21 +17,21 @@ public class DocumentController {
         this.documentService = documentService;
     }
 
-    // CREATE → Caricare un documento
+    // CREATE
     @PostMapping
     public ResponseEntity<DocumentEntity> uploadDocument(@RequestBody DocumentEntity document) {
         DocumentEntity saved = documentService.uploadDocument(document);
         return ResponseEntity.ok(saved);
     }
 
-    // READ → Recuperare i documenti dell'utente loggato
+
     @GetMapping
     public ResponseEntity<List<DocumentEntity>> getMyDocuments() {
         List<DocumentEntity> docs = documentService.getMyDocuments();
         return ResponseEntity.ok(docs);
     }
 
-    // UPDATE → Modificare un documento
+
     @PutMapping("/{id}")
     public ResponseEntity<DocumentEntity> updateDocument(
             @PathVariable Long id,

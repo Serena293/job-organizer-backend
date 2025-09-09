@@ -22,33 +22,29 @@ public class DocumentService {
         this.userRepository = userRepository;
     }
 
-    // CREATE → Caricare un documento
+    // CREATE
     public DocumentEntity uploadDocument(DocumentEntity document) {
         UserEntity user = getLoggedUser();
         document.setUser(user);
         return documentRepository.save(document);
     }
 
-    // READ → Recuperare i documenti dell'utente loggato
+    // READ
     public List<DocumentEntity> getMyDocuments() {
         UserEntity user = getLoggedUser();
         return documentRepository.findAllByUser(user);
     }
 
-    // UPDATE → Modificare un documento
+    // UPDATE
     public DocumentEntity updateDocument(Long documentId, DocumentEntity updatedDoc) {
         UserEntity user = getLoggedUser();
 
-        // Recupera il documento esistente
         DocumentEntity existing = documentRepository.findById(documentId)
                 .orElseThrow(() -> new RuntimeException("Document not found"));
-
-        // Controlla che appartenga all'utente loggato
         if (!existing.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Unauthorized to update this document");
         }
 
-        // Applica le modifiche necessarie
         existing.setDocumentName(updatedDoc.getDocumentName());
         existing.setDocumentPath(updatedDoc.getDocumentPath());
         existing.setDocumentDescription(updatedDoc.getDocumentDescription());
@@ -57,7 +53,7 @@ public class DocumentService {
         return documentRepository.save(existing);
     }
 
-    // DELETE → Eliminare un documento
+    // DELETE
     public void deleteDocument(Long documentId) {
         UserEntity user = getLoggedUser();
 
@@ -71,7 +67,7 @@ public class DocumentService {
         documentRepository.delete(existing);
     }
 
-    // Metodo privato: recupera l'utente loggato dal contesto di sicurezza
+
     private UserEntity getLoggedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
