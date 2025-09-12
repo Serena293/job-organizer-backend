@@ -15,7 +15,7 @@ public class JobService {
         this.jobRepository = jobRepository;
     }
 
-    // Ottieni tutti i job di un utente specifico
+
     public List<Job> getJobsByUserId(Long userId) {
         return jobRepository.findByUserId(userId);
     }
@@ -26,12 +26,11 @@ public class JobService {
                 .orElseThrow(() -> new RuntimeException("Job not found with id: " + id));
     }
 
-    // Cerca job per titolo di un utente specifico
+
     public List<Job> getJobsByTitleAndUserId(String title, Long userId) {
         return jobRepository.findByTitleContainingAndUserId(title, userId);
     }
 
-    // Crea un nuovo job (l'userId deve essere già impostato nel job)
     public Job createJob(Job job) {
         return jobRepository.save(job);
     }

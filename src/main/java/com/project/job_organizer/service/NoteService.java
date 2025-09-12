@@ -31,6 +31,9 @@ public class NoteService {
     public NotesEntity createNote(NotesEntity note) {
         UserEntity user = getLoggedUser();
         note.setUser(user);
+
+        NotesEntity savedNote = noteRepository.save(note);
+        noteRepository.flush();
         return noteRepository.save(note);
     }
 

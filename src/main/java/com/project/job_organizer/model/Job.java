@@ -17,6 +17,7 @@ public class Job {
     private String company;
     @NotNull
     private String location;
+    @Column(length = 2000)
     private String description;
     @NotNull
     private String status;
