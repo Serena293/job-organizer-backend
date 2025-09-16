@@ -1,5 +1,7 @@
 package com.project.job_organizer.model;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -7,27 +9,28 @@ import lombok.Data;
 @Data
 public class UserDTO {
 
-    @NotNull
+    @NotBlank
     @Size(min = 3, max = 50)
     private String firstName;
 
-    @NotNull
+    @NotBlank
     @Size(min = 3, max = 50)
     private String lastName;
 
-    @NotNull
+    @NotBlank
     @Size(min = 3, max = 50)
     private String username;
 
-    @NotNull
+    @NotBlank
     @Size(min = 8)
     private String password;
 
-    @NotNull
+    @NotBlank
     @Size(min = 8)
     private String confirmPassword;
 
-    @NotNull
+    @NotBlank
+    @Email
     private String email;
 
 }

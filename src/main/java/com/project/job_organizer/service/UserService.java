@@ -53,7 +53,8 @@ public class UserService {
         UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
         if(!passwordEncoder.matches(password, user.getPassword())){
-            throw new RuntimeException("Invalid password");
+//            System.out.println(">>> Invalid password triggered");
+            throw new RuntimeException("Invalid password or Email");
         }
         return user;
     }
@@ -122,6 +123,30 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+    }
+
+    public UserEntity updateProfile(Long userId, String newUsername, String newEmail, String newPassword) {
+        UserEntity user = getUserById(userId);
+
+        if(newUsername != null && !newUsername.equals(user.getUsername())) {
+            if(userRepository.existsByUsername(newUsername)) {
+                throw new RuntimeException("Username già in uso");
+            }
+            user.setUsername(newUsername);
+        }
+
+        if(newEmail != null && !newEmail.equals(user.getEmail())) {
+            if(userRepository.existsByEmail(newEmail)) {
+                throw new RuntimeException("Email già in uso");
+            }
+            user.setEmail(newEmail);
+        }
+
+        if(newPassword != null && !newPassword.isBlank()) {
+            user.setPassword(passwordEncoder.encode(newPassword));
+        }
+
+        return userRepository.save(user);
     }
 
 
