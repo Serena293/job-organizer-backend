@@ -3,6 +3,9 @@ package com.project.job_organizer.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 public class DocumentEntity {
@@ -17,7 +20,16 @@ public class DocumentEntity {
 
     private String documentPath;
 
+    private FileType fileType;
+
+    private  String mimeType;
+
+    private LocalDateTime createdAt;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;
+
+
 }

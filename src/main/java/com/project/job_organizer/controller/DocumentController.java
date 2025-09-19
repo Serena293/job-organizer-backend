@@ -4,7 +4,9 @@ import com.project.job_organizer.model.DocumentEntity;
 import com.project.job_organizer.service.DocumentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -18,10 +20,13 @@ public class DocumentController {
     }
 
     // CREATE
-    @PostMapping
-    public ResponseEntity<DocumentEntity> uploadDocument(@RequestBody DocumentEntity document) {
-        DocumentEntity saved = documentService.uploadDocument(document);
-        return ResponseEntity.ok(saved);
+    @PostMapping("/upload")
+    public ResponseEntity<List<DocumentEntity>> uploadDocuments(
+            @RequestParam("files") MultipartFile[] files,
+            @RequestParam("documentName") String documentName,
+            @RequestParam("documentDescription") String documentDescription) throws IOException {
+        List<DocumentEntity> savedDocuments = documentService.uploadDocuments(files, documentName, documentDescription);
+        return ResponseEntity.ok(savedDocuments);
     }
 
 
@@ -40,7 +45,7 @@ public class DocumentController {
         return ResponseEntity.ok(saved);
     }
 
-    // DELETE → Eliminare un documento
+    // DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDocument(@PathVariable Long id) {
         documentService.deleteDocument(id);
