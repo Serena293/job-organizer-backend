@@ -99,7 +99,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <executable>true</executable>
-                    <mainClass>com.project.joborganizer.ModelJobOrganizerApplication</mainClass>
+                    <mainClass>com.project.job_organizer.JobOrganizerApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>
