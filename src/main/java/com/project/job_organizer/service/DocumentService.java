@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public class DocumentService {
         UserEntity user = getLoggedUser();
         List<DocumentEntity> savedDocuments = new ArrayList<>();
 
-            for (MultipartFile file : files) {
+        for (MultipartFile file : files) {
             String mimeType = file.getContentType();
             long size = file.getSize();
 
@@ -50,12 +51,19 @@ public class DocumentService {
                 throw new RuntimeException("FILE SIZE NOT SUPPORTED: " + size);
             }
 
-                Map uploadResult = cloudinary.uploader().upload(
-                        file.getInputStream(),
-                        ObjectUtils.asMap(
-                                "folder", "job-organizer/user-" + user.getId(),
-                                "resource_type", "auto"
-                        ));
+
+            File tempFile = File.createTempFile("upload_", "_" + file.getOriginalFilename());
+            file.transferTo(tempFile);
+
+            Map uploadResult = cloudinary.uploader().upload(
+                    tempFile,
+                    ObjectUtils.asMap(
+                            "folder", "job-organizer/user-" + user.getId(),
+                            "resource_type", "auto"
+                    ));
+
+
+            tempFile.delete();
 
             String cloudinaryUrl = (String) uploadResult.get("secure_url");
 
@@ -71,7 +79,6 @@ public class DocumentService {
             savedDocuments.add(documentRepository.save(document));
         }
         return savedDocuments;
-
     }
 
     // READ
@@ -132,7 +139,7 @@ public class DocumentService {
                     return pathWithoutVersion.substring(0, pathWithoutVersion.lastIndexOf('.'));
                 }
             } catch (Exception e) {
-                // Se non riesci a estrarre, usa un fallback
+
                 System.err.println("Error extracting public_id: " + e.getMessage());
             }
             return "unknown";
