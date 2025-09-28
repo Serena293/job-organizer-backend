@@ -1,5 +1,7 @@
 package com.project.job_organizer.service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.project.job_organizer.model.DocumentEntity;
 import com.project.job_organizer.model.UserEntity;
 import com.project.job_organizer.repository.DocumentRepository;
@@ -18,31 +20,29 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
-    private static final String UPLOAD_DIR = "C:/uploads/";
+//    private static final String UPLOAD_DIR = "C:/uploads/";
+    private final Cloudinary cloudinary;
 
 
     public DocumentService(DocumentRepository documentRepository,
-                           UserRepository userRepository) {
+                           UserRepository userRepository, Cloudinary cloudinary) {
         this.documentRepository = documentRepository;
         this.userRepository = userRepository;
+        this.cloudinary = cloudinary;
     }
     //Create
     public List<DocumentEntity> uploadDocuments(MultipartFile[] files, String documentName, String documentDescription) throws IOException {
         UserEntity user = getLoggedUser();
         List<DocumentEntity> savedDocuments = new ArrayList<>();
 
-        Path uploadRootPath = Paths.get(UPLOAD_DIR);
-        if (!Files.exists(uploadRootPath)) {
-            Files.createDirectories(uploadRootPath);
-        }
-
-        for (MultipartFile file : files) {
+            for (MultipartFile file : files) {
             String mimeType = file.getContentType();
             long size = file.getSize();
 
@@ -54,6 +54,14 @@ public class DocumentService {
                 throw new RuntimeException("FILE SIZE NOT SUPPORTED: " + size);
             }
 
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                    ObjectUtils.asMap(
+                            "folder", "job-organizer/user-" + user.getId(),
+                                "resource_type", "auto"
+                        ));
+
+            String cloudinaryUrl = (String) uploadResult.get("secure_url");
+
             DocumentEntity document = new DocumentEntity();
             document.setDocumentName(documentName);
             document.setDocumentDescription(documentDescription);
@@ -61,19 +69,9 @@ public class DocumentService {
             document.setFileType(DocumentUtils.mapMimeTypeToFileType(mimeType));
             document.setCreatedAt(LocalDateTime.now());
             document.setUser(user);
-
-            Path uploadPath = Paths.get(UPLOAD_DIR + user.getId());
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            Path filePath = uploadPath.resolve(file.getOriginalFilename());
-            file.transferTo(filePath.toFile());
-
-            document.setDocumentPath(filePath.toString());
+            document.setDocumentPath(cloudinaryUrl);
 
             savedDocuments.add(documentRepository.save(document));
-
         }
         return savedDocuments;
 
@@ -113,11 +111,35 @@ public class DocumentService {
         if (!existing.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Unauthorized to delete this document");
         }
+        try {
+            // Estrai public_id dall'URL Cloudinary
+            String url = existing.getDocumentPath();
+            if (url != null && url.contains("cloudinary.com")) {
+                String publicId = extractPublicIdFromUrl(url);
+                cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+            }
+        } catch (Exception e) {
+            // Log dell'errore ma procedi con cancellazione dal DB
+            System.err.println("Error deleting document from Cloudinary: " + e.getMessage());
 
-        documentRepository.delete(existing);
+
+            documentRepository.delete(existing);
+        }
     }
-
-
+        private String extractPublicIdFromUrl(String url) {
+            try {
+               String[] parts = url.split("/upload/");
+                if (parts.length > 1) {
+                    String pathWithVersion = parts[1];
+                    String pathWithoutVersion = pathWithVersion.replaceFirst("v\\d+/", "");
+                    return pathWithoutVersion.substring(0, pathWithoutVersion.lastIndexOf('.'));
+                }
+            } catch (Exception e) {
+                // Se non riesci a estrarre, usa un fallback
+                System.err.println("Error extracting public_id: " + e.getMessage());
+            }
+            return "unknown";
+        }
     private UserEntity getLoggedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
