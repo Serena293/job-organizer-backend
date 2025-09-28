@@ -12,10 +12,10 @@ public class CloudinaryConfig {
     @Value("${CL_NAME}")
     private String cloudName;
 
-    @Value("CL_KEY")
+    @Value("${CL_KEY}")
     private String apiKey;
 
-    @Value("CL_SECRET")
+    @Value("${CL_SECRET}")
     private String apiSecret;
 
     @Bean
