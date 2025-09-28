@@ -50,9 +50,10 @@ public class DocumentService {
                 throw new RuntimeException("FILE SIZE NOT SUPPORTED: " + size);
             }
 
-            Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
-                    ObjectUtils.asMap(
-                            "folder", "job-organizer/user-" + user.getId(),
+                Map uploadResult = cloudinary.uploader().upload(
+                        file.getInputStream(),
+                        ObjectUtils.asMap(
+                                "folder", "job-organizer/user-" + user.getId(),
                                 "resource_type", "auto"
                         ));
 
