@@ -14,9 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +24,6 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
-//    private static final String UPLOAD_DIR = "C:/uploads/";
     private final Cloudinary cloudinary;
 
 
@@ -112,14 +108,14 @@ public class DocumentService {
             throw new RuntimeException("Unauthorized to delete this document");
         }
         try {
-            // Estrai public_id dall'URL Cloudinary
+
             String url = existing.getDocumentPath();
             if (url != null && url.contains("cloudinary.com")) {
                 String publicId = extractPublicIdFromUrl(url);
                 cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
             }
         } catch (Exception e) {
-            // Log dell'errore ma procedi con cancellazione dal DB
+
             System.err.println("Error deleting document from Cloudinary: " + e.getMessage());
 
 
