@@ -119,9 +119,9 @@ public class DocumentService {
 
             System.err.println("Error deleting document from Cloudinary: " + e.getMessage());
 
-
-            documentRepository.delete(existing);
         }
+            documentRepository.delete(existing);
+
     }
         private String extractPublicIdFromUrl(String url) {
             try {
