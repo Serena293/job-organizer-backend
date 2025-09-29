@@ -3,6 +3,7 @@ package com.project.job_organizer.controller;
 import com.project.job_organizer.model.*;
 import com.project.job_organizer.security.JwtUtil;
 import com.project.job_organizer.service.UserService;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> register(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserResponseDTO> register(@RequestBody UserDTO userDTO) throws MessagingException {
         UserEntity user = userService.registerUser(userDTO);
         String token = jwtUtil.generateToken(user.getEmail());
 

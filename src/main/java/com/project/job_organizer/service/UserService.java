@@ -79,33 +79,26 @@ public class UserService {
 
     //email service
 
-    public void sendWelcomeEmail(String userEmail, String firstName) {
+    public void sendWelcomeEmail(String userEmail, String firstName) throws MessagingException {
         String subject = "Welcome to Job Organizer!";
         String body = "<h1>Hi " + firstName + "!</h1><p>You have successfully registered!.</p>";
-        try {
+
             emailService.sendEmail(userEmail, subject, body);
-        } catch (MessagingException e) {
-            e.printStackTrace();
-            System.out.println("Email not sent");
-        }
+
 
 }
 
-    public void sendResetPasswordEmail(String userEmail) {
+    public void sendResetPasswordEmail(String userEmail) throws MessagingException {
         String token = jwtUtil.generateResetPasswordToken(userEmail);
 
         String subject = "Password Reset Request";
-        String resetUrl = "http://localhost:5173/reset-password?token=" + token;
+        String resetUrl = "https://job-organizer-frontend.onrender.com/reset-password?token=" + token;
 
-        String body = "<p>Clicca sul link per resettare la password (valido 15 minuti):</p>"
+        String body = "<p>Click the link below to reset your password (15 minutes):</p>"
                 + "<a href=\"" + resetUrl + "\">Reset Password</a>";
 
-        try {
             emailService.sendEmail(userEmail, subject, body);
-        } catch (MessagingException e) {
-            e.printStackTrace();
-            System.out.println("Reset password email not sent");
-        }
+
     }
 
 
