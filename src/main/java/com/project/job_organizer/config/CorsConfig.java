@@ -16,13 +16,12 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000", "http://localhost:5173", "http://localhost:5174", "http://localhost:4173")
+                .allowedOrigins("http://localhost:3000", "http://localhost:5173", "http://localhost:5174", "http://localhost:4173", "https://job-organizer-frontend.onrender.com")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }
 
-    // Per Spring Security (aggiungi questo metodo)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -30,7 +29,8 @@ public class CorsConfig implements WebMvcConfigurer {
                 "http://localhost:3000",
                 "http://localhost:5173",
                 "http://localhost:5174",
-                "http://localhost:4173"
+                "http://localhost:4173",
+                "https://job-organizer-frontend.onrender.com"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
