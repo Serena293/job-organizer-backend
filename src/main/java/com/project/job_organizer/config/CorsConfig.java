@@ -12,8 +12,7 @@ import java.util.Arrays;
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
-    // Per Spring MVC
-    @Override
+   @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:3000", "http://localhost:5173", "http://localhost:5174", "http://localhost:4173", "https://job-organizer-frontend.onrender.com")

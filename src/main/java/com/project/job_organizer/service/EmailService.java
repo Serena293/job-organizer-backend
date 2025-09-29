@@ -17,6 +17,7 @@ public class EmailService {
     private String emailFrom;
 
     public void sendEmail(String to, String subject, String body) throws MessagingException {
+ try{
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
 
@@ -27,7 +28,10 @@ public class EmailService {
 
         mailSender.send(message);
         System.out.println("Email sent to " + to);
+    } catch (MessagingException e) {
+        e.printStackTrace();
+        System.out.println("Email not sent");
     }
 
 
-}
+}}
