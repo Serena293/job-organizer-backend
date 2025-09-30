@@ -1,5 +1,6 @@
 package com.project.job_organizer.service;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import com.project.job_organizer.model.Role;
 import com.project.job_organizer.model.UserDTO;
 import com.project.job_organizer.model.UserEntity;
@@ -28,13 +29,9 @@ public class UserService {
         this.jwtUtil = jwtUtil;
     }
 
+
+
     public UserEntity registerUser(UserDTO userDTO) {
-        if (userRepository.existsByUsername(userDTO.getUsername())) {
-            throw new RuntimeException("Username already exists");
-        }
-        if (userRepository.existsByEmail(userDTO.getEmail())) {
-            throw new RuntimeException("Email already exists");
-        }
         if (!userDTO.getPassword().equals(userDTO.getConfirmPassword())) {
             throw new RuntimeException("Passwords do not match");
         }
@@ -49,13 +46,23 @@ public class UserService {
         user.setDocuments(new ArrayList<>());
         user.setNotes(new ArrayList<>());
 
-        UserEntity savedUser = userRepository.save(user);
+        try {
+            UserEntity savedUser = userRepository.save(user);
+            sendWelcomeEmail(savedUser.getEmail(), savedUser.getFirstName());
+            return savedUser;
+        } catch (DataIntegrityViolationException e) {
+            String errorMessage = e.getMostSpecificCause().getMessage(); // messaggio DB
+            if (errorMessage.contains("username")) {
+                throw new RuntimeException("Username already exists");
+            } else if (errorMessage.contains("email")) {
+                throw new RuntimeException("Email already exists");
+            } else {
+                throw new RuntimeException("Username or email already exists");
+            }
+        }
 
-        // invio email non bloccante
-        sendWelcomeEmail(savedUser.getEmail(), savedUser.getFirstName());
-
-        return savedUser;
     }
+
 
     public UserEntity login(String email, String password) {
         UserEntity user = userRepository.findByEmail(email)
