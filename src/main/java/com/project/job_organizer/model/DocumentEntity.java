@@ -3,7 +3,6 @@ package com.project.job_organizer.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -26,10 +25,7 @@ public class DocumentEntity {
 
     private LocalDateTime createdAt;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity user;
-
-
 }
