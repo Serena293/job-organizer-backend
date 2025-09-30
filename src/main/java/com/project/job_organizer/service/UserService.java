@@ -1,5 +1,6 @@
 package com.project.job_organizer.service;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.dao.DataIntegrityViolationException;
 import com.project.job_organizer.model.Role;
 import com.project.job_organizer.model.UserDTO;
@@ -159,6 +160,16 @@ public class UserService {
 
         return userRepository.save(user);
     }
+
+    @PostConstruct
+    public void checkUsers() {
+        userRepository.findAll().forEach(user ->
+                System.out.println("Utente: id=" + user.getId() +
+                        ", username=" + user.getUsername() +
+                        ", email=" + user.getEmail())
+        );
+    }
+
 
 
 }

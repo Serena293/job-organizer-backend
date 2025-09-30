@@ -2,8 +2,9 @@ package com.project.job_organizer.controller;
 
 import com.project.job_organizer.model.LoginDTO;
 import com.project.job_organizer.model.UserDTO;
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
-import org.springframework.security.access.AccessDeniedException;
+
 import org.springframework.security.core.Authentication;
 import com.project.job_organizer.model.UserEntity;
 import com.project.job_organizer.service.UserService;
@@ -42,6 +43,8 @@ public class UserController {
         dto.setEmail(updatedUser.getEmail());
         return dto;
     }
+
+
 
 
 }
