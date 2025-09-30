@@ -47,12 +47,11 @@ public class UserService {
         user.setDocuments(new ArrayList<>());
         user.setNotes(new ArrayList<>());
 
+        UserEntity savedUser;
         try {
-            UserEntity savedUser = userRepository.save(user);
-            sendWelcomeEmail(savedUser.getEmail(), savedUser.getFirstName());
-            return savedUser;
+            savedUser = userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
-            String errorMessage = e.getMostSpecificCause().getMessage(); // messaggio DB
+            String errorMessage = e.getMostSpecificCause().getMessage();
             if (errorMessage.contains("username")) {
                 throw new RuntimeException("Username already exists");
             } else if (errorMessage.contains("email")) {
@@ -62,7 +61,16 @@ public class UserService {
             }
         }
 
+        try {
+            sendWelcomeEmail(savedUser.getEmail(), savedUser.getFirstName());
+        } catch (Exception e) {
+            System.out.println("Failed to send welcome email to " + savedUser.getEmail() + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return savedUser;
     }
+
 
 
     public UserEntity login(String email, String password) {
@@ -142,7 +150,7 @@ public class UserService {
 
         if (newUsername != null && !newUsername.equals(user.getUsername())) {
             if (userRepository.existsByUsername(newUsername)) {
-                throw new RuntimeException("Username già in uso");
+                throw new RuntimeException("Username already exists");
             }
             user.setUsername(newUsername);
         }
